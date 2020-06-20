@@ -18,6 +18,14 @@ class RaspberryPiM(AbstractRaspberryPi):
         self.currentBirds = 0
         self.min_confidence = 0.2
         self.DEBUGFLAG = False
+        self.dirname = os.path.dirname(__file__)
+        self.weightPath = os.path.join(self.dirname, "yolo-coco/yolov3-tiny.weights")
+        self.configPath = os.path.join(self.dirname, "yolo-coco/yolov3-tiny.cfg")
+        self.labelsPath = os.path.join(self.dirname, "yolo-coco/coco.names")
+        self.LABELS = open(self.labelsPath).read().strip().split("\n")
+        self.net = cv2.dnn.readNetFromDarknet(self.configPath, self.weightPath)
+        self.ln = self.net.getLayerNames()
+        self.ln = [self.ln[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
         AbstractRaspberryPi.__init__(self, "pi2", 5555, 5560)
 
         for s in self.initialSensors:
@@ -59,23 +67,12 @@ class RaspberryPiM(AbstractRaspberryPi):
         self.send_message_pic_c("camera")
              
     def countBirds(self, image):
-        
-        dirname = os.path.dirname(__file__)
-        weightPath = os.path.join(dirname, "yolo-coco/yolov3-tiny.weights")
-        configPath = os.path.join(dirname, "yolo-coco/yolov3-tiny.cfg")
-        labelsPath = os.path.join(dirname, "yolo-coco/coco.names")
-        LABELS = open(labelsPath).read().strip().split("\n")
-        net = cv2.dnn.readNetFromDarknet(configPath, weightPath)
-        
+          
         (H,W) = image.shape[:2]
-        ln = net.getLayerNames()
-        ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
-
-        blob = cv2.dnn.blobFromImage(image,1 / 255.0, (416, 416), swapRB=True, crop=False)
-
-        net.setInput(blob)
+        blob = cv2.dnn.blobFromImage(image,1 / 255.0, (416, 416), swapRB=True, crop=False)        
+        self.net.setInput(blob)
         start = time.time()
-        layerOutputs = net.forward(ln)
+        layerOutputs = self.net.forward(self.ln)
         end = time.time()
         if self.DEBUGFLAG:
             print(f"YOLO took {end - start} seconds")
@@ -104,7 +101,7 @@ class RaspberryPiM(AbstractRaspberryPi):
         birdCount = 0
         if len(idxs) > 0:
             for i in idxs.flatten():
-                text = f"{LABELS[classIDs[i]]}: {confidences[i]}"
+                text = f"{self.LABELS[classIDs[i]]}: {confidences[i]}"
                 if self.DEBUGFLAG:
                     (x, y) = (boxes[i][0], boxes[i][1])
                     (w, h) = (boxes[i][2], boxes[i][3])
@@ -112,7 +109,7 @@ class RaspberryPiM(AbstractRaspberryPi):
                     cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 15, 2)
                     print(text)                                  
                 
-                if "bird" in f"{LABELS[classIDs[i]]}":
+                if "bird" in f"{self.LABELS[classIDs[i]]}":
                     birdCount += 1
                 
             if self.DEBUGFLAG:
