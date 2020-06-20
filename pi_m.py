@@ -119,6 +119,7 @@ class RaspberryPiM(AbstractRaspberryPi):
                 print(f"Bird Count: {birdCount}")
         if birdCount != self.currentBirds:
             self.currentBirds = birdCount
+            #TODO: Send correct Message for pi_w
             self.senderW.socket.send_string(f"weight Count: {self.currentBirds}")
             response = self.senderW.socket.recv()
         birdCount = 0
