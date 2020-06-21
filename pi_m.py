@@ -46,8 +46,11 @@ class RaspberryPiM(AbstractRaspberryPi):
     def receiver_thread(self):
         while True:
             incoming_request = self.receiver.socket.recv()
-            print(str(incoming_request))
-
+               print("P2: request (" + str(incoming_request) + ") received.")
+            if "p3" in str(incoming_request):
+                r = randint(1, 10)
+                self.receiver.socket.send_string(" p2 " + str(r) +" .")
+                #self.senderW.socket.send_string(f"weight Count: {self.currentBirds}")
     def send_message_pic_c (self, message):
         while True:
             self.lock.acquire()
@@ -114,9 +117,6 @@ class RaspberryPiM(AbstractRaspberryPi):
                 print(f"Bird Count: {birdCount}")
         if birdCount != self.currentBirds:
             self.currentBirds = birdCount
-            #TODO: Send correct Message for pi_w
-            self.senderW.socket.send_string(f"weight Count: {self.currentBirds}")
-            response = self.senderW.socket.recv()
         birdCount = 0
         if self.DEBUGFLAG:
             cv2.namedWindow("output", cv2.WINDOW_NORMAL)
