@@ -57,6 +57,7 @@ class RaspberryPi1(AbstractRaspberryPi):
     def set_window_location(self, x, y):
         self.move(x, y)
 
+    # We receive a request with the number of birds, check the current weight and respond accordingly. 
     def receiver_thread(self):
         while True:
             incoming_request = self.receiver.socket.recv()
