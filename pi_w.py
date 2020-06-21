@@ -60,6 +60,14 @@ class RaspberryPi1(AbstractRaspberryPi):
     def receiver_thread(self):
         while True:
             incoming_request = self.receiver.socket.recv()
+            self.receiver.socket.send_string("p3 received bird count")
+            if "p2" in incoming_request:
+                time_stamp = time.asctime()
+                for word in incoming_request.split(' ', 5):
+                    if word.isdigit():
+                        self.birds = (int(word))
+                        self.sampling_action(self.birds)
+                        print("P3: Response from P2 (" + str(self.birds) + " birds) received at" + str(time_stamp))
 
 #The main logic for the communication between two PIs is located in this method. Here we first send the message
 #asking for data, and we also receive the response in this method. The amount of birds will be extracted from
@@ -85,7 +93,7 @@ class RaspberryPi1(AbstractRaspberryPi):
     def sampling_thread(self):
         #  time.sleep(5)
         while True:
-            measured_weight = self.activeSensors["weight"].get_weight()
+           """  measured_weight = self.activeSensors["weight"].get_weight()
             if measured_weight >= 10:
                 self.send_message("p3 request: no. of birds ")
                 if self.birds < 4:
@@ -102,4 +110,21 @@ class RaspberryPi1(AbstractRaspberryPi):
                 self.activeSensors["motor"].on("up")
                 self.activeSensors["motor"].off()
                 print("Open! Weight: " + str(measured_weight) + ",  No. of birds: " + str(self.birds))
+                time.sleep(2) """
+
+    def sampling_action(self, birdCount):
+        measured_weight = self.activeSensors["weight"].get_weight()
+        if measured_weight >= 10:                
+            if birdCount < 4:
+                self.activeSensors["motor"].on("down")
+                self.activeSensors["motor"].off()
+                print("Closed! Weight: " + str(measured_weight) + ", No. of birds: " + str(birdCount))
+            else:           
+                self.activeSensors["motor"].on("up")
+                self.activeSensors["motor"].off()
+                print("Open! Weight: " + str(measured_weight) + ",  No. of birds: " + str(birdCount))
                 time.sleep(2)
+        else:
+                self.activeSensors["motor"].on("up")
+                self.activeSensors["motor"].off()
+                print("Open! Weight: " + str(measured_weight) + ",  No. of birds: " + str(birdCount))
