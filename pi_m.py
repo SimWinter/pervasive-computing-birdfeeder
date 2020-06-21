@@ -53,10 +53,8 @@ class RaspberryPiM(AbstractRaspberryPi):
             self.lock.acquire()
             self.senderC.socket.send_string(message)
             response = self.senderC.socket.recv() 
-
-            #TODO: Deserialize response
-                       
-            self.countBirds(image)        
+                                  
+            self.countBirds(response)        
         
             self.lock.release()
             
