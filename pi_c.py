@@ -1,5 +1,7 @@
 import threading
 import time
+import os
+import cv2
 
 from abstractPi import AbstractRaspberryPi
 from communication.abstractReceiver import AbstractReceiver
@@ -56,8 +58,13 @@ class RaspberryPiC(AbstractRaspberryPi):
         while True:
             incoming_request = self.receiver.socket.recv()
             if "camera" in str(incoming_request):
+                dirPath = os.path.dirname(__file__)
+                imPath = os.path.join(dirPath, "birds.jpg")
+                image = cv2.imread(imPath)
+               
             # TODO: send image data
-                self.receiver.socket.send(self.activeSensors["camera"].get_image())
+                self.receiver.socket.send(image)
+                #self.receiver.socket.send(self.activeSensors["camera"].get_image())
                 #Test:
                 #self.receiver.socket.send(b'\x00\x01\x00\x02\x00\x03')
 

@@ -29,7 +29,7 @@ from sensors.weightSensor import WeightSensor
 #request will be sent to PI2 to get the number of birds. If the number is one and the weight is too large, the doors
 #will close. However, if the weight is beyond a given threshold, but the number of birds is greater than four,
 #the door will remain opened.
-class RaspberryPi1(AbstractRaspberryPi):
+class RaspberryPiW(AbstractRaspberryPi):
     birds = 0   #field for the number of birds received from the other PI (PI2)
 
     def __init__(self):
