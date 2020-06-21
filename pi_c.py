@@ -58,6 +58,8 @@ class RaspberryPiC(AbstractRaspberryPi):
         while True:
             incoming_request = self.receiver.socket.recv()
             if "camera" in str(incoming_request):
+
+                # for testing purposes
                 dirPath = os.path.dirname(__file__)
                 imPath = os.path.join(dirPath, "birds.jpg")
                 image = cv2.imread(imPath)
